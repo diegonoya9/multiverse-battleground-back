@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const db = require('../database/models')
 const sequelize = db.sequelize
-const { Op } = require('sequelize')
+const { Op, Sequelize } = require('sequelize')
 
 
 const apiControllers = {
@@ -68,14 +68,14 @@ const apiControllers = {
         const whereCondition = user_id ? { user_id: user_id } : {};
         await db.UserFighters.findAll({ where: whereCondition, include: [{ association: "fighters" }] })
             .then(async (userFighters) => {
-                const mappedUserFighters = userFighters.map((userFighter) => ({
+                let mappedUserFighters = userFighters.map((userFighter) => ({
                     ...userFighter.toJSON(),  // Utiliza el spread operator para copiar todas las propiedades
                     name: userFighter.fighters.name,
                     img_back: userFighter.fighters.img_back,
                     img_front: userFighter.fighters.img_front,
                     // Otros campos que desees incluir...
                 }));
-                for (const fighter of mappedUserFighters) {
+                for (let fighter of mappedUserFighters) {
                     const fighterLevel = await db.FighterLevels.findOne({ where: { fighter_id: fighter.fighter_id, level: fighter.level } })
                     fighter.attack = fighterLevel.attack
                     fighter.special_attack = fighterLevel.special_attack
@@ -83,6 +83,20 @@ const apiControllers = {
                     fighter.special_defense = fighterLevel.special_defense
                     fighter.accuracy = fighterLevel.accuracy
                     fighter.max_hp = fighterLevel.max_hp
+                    let moves = await db.UserFighterMoves.findAll({
+                        where: { user_fighter_id: fighter.user_fighter_id },
+                        include: [
+                            {
+                                model: db.Moves,
+                                as: 'moves',
+                                where: {
+                                    move_id: db.Sequelize.col('UserFighterMoves.move_id'),
+                                },
+                                include: [{ model: db.MoveActions, as: "actionmoves", where: { move_id: db.Sequelize.col('UserFighterMoves.move_id') } }]
+                            },
+                        ],
+                    });
+                    fighter.moves = moves
                 }
                 return res.send(mappedUserFighters)
             })
@@ -105,6 +119,18 @@ const apiControllers = {
         await db.FighterLevels.findAll({ include: [{ association: "fighters" }] })
             .then((fighterLevel) => {
                 return res.send(fighterLevel)
+            })
+    },
+    getAllMoves: async (req, res) => {
+        await db.Moves.findAll({ include: [{ association: "fighters" }, { association: "actionmoves" }] })
+            .then((moves) => {
+                return res.send(moves)
+            })
+    },
+    getAllFighterMoves: async (req, res) => {
+        await db.UserFighterMoves.findAll({ include: [{ association: "userfighters" }, { association: "moves" }] })
+            .then((moves) => {
+                return res.send(moves)
             })
     },
     buyObject: async (req, res) => {
@@ -148,7 +174,7 @@ const apiControllers = {
         if (userMoney.quantity > fighter.price) {
             userMoney.quantity -= fighter.price //poner el precio del objeto comprado
             await userMoney.save();
-            await db.UserFighters.create({
+            const newUserFighter = await db.UserFighters.create({
                 fighter_id,
                 user_id,
                 active: "false",
@@ -162,6 +188,18 @@ const apiControllers = {
                 current_xp: 0,
                 level: 1
             });
+            /* le asigno movimientos en userfightermoves */
+            const user_fighter_id = newUserFighter.user_fighter_id
+            console.log(user_fighter_id)
+            const fighterMoves = await db.Moves.findAll({ where: { fighter_id } })
+            for (const move of fighterMoves) {
+                await db.UserFighterMoves.create({
+                    move_id: move.move_id,
+                    level: 1,
+                    current_xp: 1,
+                    user_fighter_id
+                })
+            }
         } else {
             return res.send("no money")
         }

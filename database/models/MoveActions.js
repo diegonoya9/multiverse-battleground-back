@@ -1,25 +1,29 @@
 module.exports = (sequelize, dataTypes) => {
-    let alias = "Fighters";
+    let alias = "MoveActions";
 
     let cols = {
-        fighter_id: {
+        action_move_id: {
             type: dataTypes.BIGINT(11),
             primaryKey: true,
             autoIncrement: true
         },
-        img_back: {
+        move_id: {
+            type: dataTypes.BIGINT(11),
+            allowNull: false
+        },
+        attack_type: {
             type: dataTypes.STRING(255),
             allowNull: false
         },
-        img_front: {
-            type: dataTypes.STRING(255),
-            allowNull: false
-        },
-        name: {
+        field: {
             type: dataTypes.STRING(50),
             allowNull: false
         },
-        price: {
+        inflicted_on: {
+            type: dataTypes.STRING(50),
+            allowNull: false
+        },
+        value: {
             type: dataTypes.BIGINT(11),
             allowNull: false
         }
@@ -31,26 +35,20 @@ module.exports = (sequelize, dataTypes) => {
 
     };
     let config = {
-        tableName: "fighters",
+        tableName: "actionmoves",
         timestamps: false
     };
 
-    const Fighters = sequelize.define(alias, cols, config);
-    Fighters.associate = function (models) {
-        // Fighters.belongsTo(models.SubCategories, {
+    const MoveActions = sequelize.define(alias, cols, config);
+    MoveActions.associate = function (models) {
+        // Moves.belongsTo(models.SubCategories, {
         //     as: "SubCategories",
         //     foreignKey: "subcategory_id"
         // }) //esta podria ser para la tabla de moves
-        Fighters.hasMany(models.UserFighters, {
-            as: "userfighters",
-            foreignKey: "user_fighter_id"
-        })
-        Fighters.hasMany(models.Moves, {
+        MoveActions.belongsTo(models.Moves, {
             as: "moves",
             foreignKey: "move_id"
         })
     }
-
-
-    return Fighters
+    return MoveActions
 }

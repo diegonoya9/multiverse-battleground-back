@@ -1,17 +1,17 @@
 module.exports = (sequelize, dataTypes) => {
-    let alias = "Fighters";
+    let alias = "Moves";
 
     let cols = {
-        fighter_id: {
+        move_id: {
             type: dataTypes.BIGINT(11),
             primaryKey: true,
             autoIncrement: true
         },
-        img_back: {
-            type: dataTypes.STRING(255),
+        fighter_id: {
+            type: dataTypes.BIGINT(11),
             allowNull: false
         },
-        img_front: {
+        img: {
             type: dataTypes.STRING(255),
             allowNull: false
         },
@@ -19,7 +19,7 @@ module.exports = (sequelize, dataTypes) => {
             type: dataTypes.STRING(50),
             allowNull: false
         },
-        price: {
+        mp: {
             type: dataTypes.BIGINT(11),
             allowNull: false
         }
@@ -31,26 +31,28 @@ module.exports = (sequelize, dataTypes) => {
 
     };
     let config = {
-        tableName: "fighters",
+        tableName: "moves",
         timestamps: false
     };
 
-    const Fighters = sequelize.define(alias, cols, config);
-    Fighters.associate = function (models) {
-        // Fighters.belongsTo(models.SubCategories, {
+    const Moves = sequelize.define(alias, cols, config);
+    Moves.associate = function (models) {
+        // Moves.belongsTo(models.SubCategories, {
         //     as: "SubCategories",
         //     foreignKey: "subcategory_id"
         // }) //esta podria ser para la tabla de moves
-        Fighters.hasMany(models.UserFighters, {
-            as: "userfighters",
-            foreignKey: "user_fighter_id"
+        Moves.hasMany(models.Fighters, {
+            as: "fighters",
+            foreignKey: "fighter_id"
         })
-        Fighters.hasMany(models.Moves, {
-            as: "moves",
-            foreignKey: "move_id"
+        Moves.hasMany(models.MoveActions, {
+            as: "actionmoves",
+            foreignKey: "action_move_id"
+        })
+        Moves.hasMany(models.UserFighterMoves, {
+            as: "userfightermoves",
+            foreignKey: "user_fighter_move_id"
         })
     }
-
-
-    return Fighters
+    return Moves
 }
