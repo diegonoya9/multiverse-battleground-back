@@ -63,9 +63,28 @@ const apiControllers = {
             })
     },
     getAllUserFighters: async (req, res) => {
-        await db.UserFighters.findAll({ include: [{ association: "users" }, { association: "fighters" }] })
-            .then((userFighters) => {
-                return res.send(userFighters)
+        const user_id = req.params.user_id ? req.params.user_id : null;
+        // Construir la condición de búsqueda
+        const whereCondition = user_id ? { user_id: user_id } : {};
+        await db.UserFighters.findAll({ where: whereCondition, include: [{ association: "fighters" }] })
+            .then(async (userFighters) => {
+                const mappedUserFighters = userFighters.map((userFighter) => ({
+                    ...userFighter.toJSON(),  // Utiliza el spread operator para copiar todas las propiedades
+                    name: userFighter.fighters.name,
+                    img_back: userFighter.fighters.img_back,
+                    img_front: userFighter.fighters.img_front,
+                    // Otros campos que desees incluir...
+                }));
+                for (const fighter of mappedUserFighters) {
+                    const fighterLevel = await db.FighterLevels.findOne({ where: { fighter_id: fighter.fighter_id, level: fighter.level } })
+                    fighter.attack = fighterLevel.attack
+                    fighter.special_attack = fighterLevel.special_attack
+                    fighter.defense = fighterLevel.defense
+                    fighter.special_defense = fighterLevel.special_defense
+                    fighter.accuracy = fighterLevel.accuracy
+                    fighter.max_hp = fighterLevel.max_hp
+                }
+                return res.send(mappedUserFighters)
             })
     },
     getAllUserObjects: async (req, res) => {
@@ -150,11 +169,9 @@ const apiControllers = {
     },
     addToParty: async (req, res) => {
         const user_fighter_id = req.body[0].user_fighter_id
-        console.log(user_fighter_id)
         const userFighter = await db.UserFighters.findOne({
             where: { user_fighter_id }
         });
-        console.log(userFighter)
         userFighter.in_party = "true"
         userFighter.save()
         return res.send("ok")
