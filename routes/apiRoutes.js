@@ -12,6 +12,8 @@ router.get('/allfighterlevels', apiControllers.getAllFighterLevels)
 router.get('/createfighterlevels', apiControllers.createFighterLevels)
 router.post('/buyObject', apiControllers.buyObject)
 router.post('/buyFighter', apiControllers.buyFighter)
+router.post('/addtoparty', apiControllers.addToParty)
+router.post('/removefromparty', apiControllers.removeFromParty)
 router.get('/', (req, res) => {
     res.send('running app..')
 })
