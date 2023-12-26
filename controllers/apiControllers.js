@@ -7,10 +7,25 @@ const { Op } = require('sequelize')
 
 const apiControllers = {
     getAllUsers: async (req, res) => {
-        await db.Users.findAll({ include: [{ association: "userfighters" }] })
-            .then((users) => {
-                return res.send(users)
-            })
+        try {
+            // Verificar si se proporciona el user_id en la solicitud
+            const user_id = req.params.user_id ? req.params.user_id : null;
+
+            // Construir la condición de búsqueda
+            const whereCondition = user_id ? { user_id: user_id } : {};
+
+            // Realizar la consulta a la base de datos
+            const users = await db.Users.findAll({
+                include: [{ association: "userfighters" }],
+                where: whereCondition,
+            });
+
+            // Enviar los datos como respuesta
+            res.send(users);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Error al obtener usuarios.');
+        }
     },
     getAllFighters: async (req, res) => {
         await db.Fighters.findAll()
