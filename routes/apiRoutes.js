@@ -8,6 +8,7 @@ router.get('/alluserfighters', apiControllers.getAllUserFighters)
 router.get('/allobjects', apiControllers.getAllObjects)
 router.get('/alluserobjects', apiControllers.getAllUserObjects)
 router.get('/allfighterlevels', apiControllers.getAllFighterLevels)
+router.get('/createfighterlevels', apiControllers.createFighterLevels)
 router.get('/', (req, res) => {
     res.send('running app..')
 })

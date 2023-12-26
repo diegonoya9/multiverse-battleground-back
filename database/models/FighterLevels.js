@@ -19,6 +19,10 @@ module.exports = (sequelize, dataTypes) => {
             type: dataTypes.BIGINT(11),
             allowNull: false
         },
+        attack: {
+            type: dataTypes.BIGINT(11),
+            allowNull: false
+        },
         level: {
             type: dataTypes.BIGINT(11),
             allowNull: false
@@ -27,7 +31,7 @@ module.exports = (sequelize, dataTypes) => {
             type: dataTypes.BIGINT(11),
             allowNull: false
         },
-        max_xp: {
+        min_xp: {
             type: dataTypes.BIGINT(11),
             allowNull: false
         },

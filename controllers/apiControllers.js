@@ -55,6 +55,20 @@ const apiControllers = {
             .then((users) => {
                 return res.send(users)
             })
+    },
+    createFighterLevels: async (req, res) => {
+        await db.FighterLevels.create({
+            "name": "Ameo",
+            "email": "ameo@gmail.com",
+            "password": "123456",
+            "avatar": "Ameo.jpg",
+            "profile": "Admin",
+            "money": 5000,
+        })
+        db.Users.findAll()
+            .then((users) => {
+                return res.send(users)
+            })
     }
 }
 
