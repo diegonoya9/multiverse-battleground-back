@@ -83,6 +83,7 @@ const apiControllers = {
                     fighter.special_defense = fighterLevel.special_defense
                     fighter.accuracy = fighterLevel.accuracy
                     fighter.max_hp = fighterLevel.max_hp
+                    fighter.current_hp = fighterLevel.max_hp
                     let moves = await db.UserFighterMoves.findAll({
                         where: { user_fighter_id: fighter.user_fighter_id },
                         include: [
