@@ -191,7 +191,6 @@ const apiControllers = {
             });
             /* le asigno movimientos en userfightermoves */
             const user_fighter_id = newUserFighter.user_fighter_id
-            console.log(user_fighter_id)
             const fighterMoves = await db.Moves.findAll({ where: { fighter_id } })
             for (const move of fighterMoves) {
                 await db.UserFighterMoves.create({
@@ -213,6 +212,26 @@ const apiControllers = {
         });
         userFighter.in_party = "true"
         userFighter.save()
+        return res.send("ok")
+    },
+    updateFighter: async (req, res) => {
+        const newFighter = req.body[0].newFighter
+        const userFighter = await db.UserFighters.findOne({
+            where: { user_fighter_id: newFighter.user_fighter_id }
+        });
+        userFighter.level = newFighter.level
+        userFighter.current_xp = newFighter.current_xp
+        userFighter.save()
+        return res.send("ok")
+    },
+    updateUserMoney: async (req, res) => {
+        const quantity = req.body[0].quantity
+        const user_id = req.body[0].user_id
+        const userObjects = await db.UserObjects.findOne({
+            where: { user_id, object_id: 7 } //7 es Money
+        });
+        userObjects.quantity += quantity
+        userObjects.save()
         return res.send("ok")
     },
     removeFromParty: async (req, res) => {
