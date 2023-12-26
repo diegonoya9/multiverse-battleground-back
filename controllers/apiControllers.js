@@ -17,7 +17,7 @@ const apiControllers = {
             // Realizar la consulta a la base de datos
             const users = await db.Users.findAll({
                 include: [
-                    { association: "userfighters", where: whereCondition, include: [{ model: db.Fighters, as: 'fighters', attributes: ['img_front'] }] },
+                    { association: "userfighters", where: whereCondition, include: [{ model: db.Fighters, as: 'fighters' }] },
                     { association: "userobjects", where: whereCondition, include: [{ model: db.Objects, as: 'objects', attributes: ['name'] }] },
                 ],
             });
