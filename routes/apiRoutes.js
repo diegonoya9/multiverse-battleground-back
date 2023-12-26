@@ -14,6 +14,7 @@ router.post('/buyObject', apiControllers.buyObject)
 router.post('/buyFighter', apiControllers.buyFighter)
 router.post('/addtoparty', apiControllers.addToParty)
 router.post('/removefromparty', apiControllers.removeFromParty)
+router.post('/setfirstfighter', apiControllers.setFirstFighter)
 router.get('/', (req, res) => {
     res.send('running app..')
 })
