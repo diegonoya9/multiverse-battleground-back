@@ -17,7 +17,7 @@ const apiControllers = {
             // Realizar la consulta a la base de datos
             const users = await db.Users.findAll({
                 include: [
-                    { association: "userfighters", where: whereCondition },
+                    { association: "userfighters", where: whereCondition, include: [{ model: db.Fighters, as: 'fighters', attributes: ['img_front'] }] },
                     { association: "userobjects", where: whereCondition, include: [{ model: db.Objects, as: 'objects', attributes: ['name'] }] },
                 ],
             });
@@ -60,7 +60,7 @@ const apiControllers = {
                 return res.send(fighterLevel)
             })
     },
-    buy: async (req, res) => {
+    buyObject: async (req, res) => {
         const user_id = req.body[0].user_id
         const object_id = req.body[0].object_id
         const object = await db.Objects.findOne({ where: { object_id } })
@@ -89,31 +89,36 @@ const apiControllers = {
         } else {
             return res.send("no money")
         }
-
-
-        /*
-          await db.UserObjects.findAll({ include: [{ association: "users" }, { association: "objects" }], where: { user_id: user_id, object_id }, })
-              .then((userObjects) => {
-                  if (userObjects[0]) {
-                      let updatedData = userObjects[0]
-                      updatedData.quantity += 1
-                      db.UserObjects.update(updatedData, {
-                          where: { user_id: user_id, object_id },
-                      });
-                      console.log(updatedData.quantity)
-                  } else {
-                      db.UserObjects.create({
-                          "object_id": object_id,
-                          "user_id": user_id,
-                          "quantity": 1
-                      })
-                  }
-              })*/
-
         return res.send("ok")
-        /*const [updatedRowCount] = await db.Users.update(updatedData, {
-            where: { user_id: userId },
-          });*/
+    },
+    buyFighter: async (req, res) => {
+        const user_id = req.body[0].user_id
+        const fighter_id = req.body[0].fighter_id
+        const fighter = await db.Fighters.findOne({ where: { fighter_id } })
+        const userMoney = await db.UserObjects.findOne({
+            where: { object_id: 7 } //7 es Money
+        });
+        if (userMoney.quantity > fighter.price) {
+            userMoney.quantity -= fighter.price //poner el precio del objeto comprado
+            await userMoney.save();
+            await db.UserFighters.create({
+                fighter_id,
+                user_id,
+                active: "false",
+                in_party: "false",
+                extra_accuracy: 0,
+                extra_max_hp: 0,
+                extra_attack: 0,
+                extra_special_attack: 0,
+                extra_defense: 0,
+                extra_special_defense: 0,
+                current_xp: 0,
+                level: 1
+            });
+        } else {
+            return res.send("no money")
+        }
+        return res.send("ok")
     },
     createUser: async (req, res) => {
         await db.Users.create({
