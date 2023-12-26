@@ -31,7 +31,8 @@ const apiControllers = {
             })
     },
     getAllUserObjects: async (req, res) => {
-        await db.UserObjects.findAll({ include: [{ association: "users" }, { association: "objects" }] })
+        const user_id = req.params.user_id;
+        await db.UserObjects.findAll({ include: [{ association: "users" }, { association: "objects" }], where: { user_id: user_id }, })
             .then((userObjects) => {
                 return res.send(userObjects)
             })
