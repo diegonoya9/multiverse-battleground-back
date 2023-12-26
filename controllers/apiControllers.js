@@ -63,22 +63,34 @@ const apiControllers = {
     buy: async (req, res) => {
         const user_id = req.body[0].user_id
         const object_id = req.body[0].object_id
-        const userObject = await db.UserObjects.findOne({
-            where: { user_id, object_id },
+        const object = await db.Objects.findOne({ where: { object_id } })
+        const userMoney = await db.UserObjects.findOne({
+            where: { object_id: 7 } //7 es Money
         });
-        if (userObject) {
-            // Si existe, actualizar la cantidad
-            userObject.quantity += 1;
-            await userObject.save(); // Guardar los cambios en la base de datos
-            console.log(userObject.quantity);
-        } else {
-            // Si no existe, crear un nuevo UserObject
-            await db.UserObjects.create({
-                object_id,
-                user_id,
-                quantity: 1,
+        if (userMoney.quantity > object.price) {
+            userMoney.quantity -= object.price //poner el precio del objeto comprado
+            await userMoney.save();
+            const userObject = await db.UserObjects.findOne({
+                where: { user_id, object_id },
             });
+            /*falta ver si en esta funcion restamos la plata tabmién o si se hace por otro lado*/
+            if (userObject) {
+                // Si existe, actualizar la cantidad
+                userObject.quantity += 1;
+                await userObject.save(); // Guardar los cambios en la base de datos
+            } else {
+                // Si no existe, crear un nuevo UserObject
+                await db.UserObjects.create({
+                    object_id,
+                    user_id,
+                    quantity: 1,
+                });
+            }
+        } else {
+            return res.send("no money")
         }
+
+
         /*
           await db.UserObjects.findAll({ include: [{ association: "users" }, { association: "objects" }], where: { user_id: user_id, object_id }, })
               .then((userObjects) => {
