@@ -60,6 +60,49 @@ const apiControllers = {
                 return res.send(fighterLevel)
             })
     },
+    buy: async (req, res) => {
+        const user_id = req.body[0].user_id
+        const object_id = req.body[0].object_id
+        const userObject = await db.UserObjects.findOne({
+            where: { user_id, object_id },
+        });
+        if (userObject) {
+            // Si existe, actualizar la cantidad
+            userObject.quantity += 1;
+            await userObject.save(); // Guardar los cambios en la base de datos
+            console.log(userObject.quantity);
+        } else {
+            // Si no existe, crear un nuevo UserObject
+            await db.UserObjects.create({
+                object_id,
+                user_id,
+                quantity: 1,
+            });
+        }
+        /*
+          await db.UserObjects.findAll({ include: [{ association: "users" }, { association: "objects" }], where: { user_id: user_id, object_id }, })
+              .then((userObjects) => {
+                  if (userObjects[0]) {
+                      let updatedData = userObjects[0]
+                      updatedData.quantity += 1
+                      db.UserObjects.update(updatedData, {
+                          where: { user_id: user_id, object_id },
+                      });
+                      console.log(updatedData.quantity)
+                  } else {
+                      db.UserObjects.create({
+                          "object_id": object_id,
+                          "user_id": user_id,
+                          "quantity": 1
+                      })
+                  }
+              })*/
+
+        return res.send("ok")
+        /*const [updatedRowCount] = await db.Users.update(updatedData, {
+            where: { user_id: userId },
+          });*/
+    },
     createUser: async (req, res) => {
         await db.Users.create({
             "name": "Ameo",

@@ -10,6 +10,7 @@ router.get('/allobjects', apiControllers.getAllObjects)
 router.get('/alluserobjects/:user_id', apiControllers.getAllUserObjects)
 router.get('/allfighterlevels', apiControllers.getAllFighterLevels)
 router.get('/createfighterlevels', apiControllers.createFighterLevels)
+router.post('/buy', apiControllers.buy)
 router.get('/', (req, res) => {
     res.send('running app..')
 })
