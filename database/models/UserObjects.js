@@ -15,6 +15,10 @@ module.exports = (sequelize, dataTypes) => {
             type: dataTypes.BIGINT(11),
             allowNull: false
         },
+        quantity: {
+            type: dataTypes.BIGINT(11),
+            allowNull: false
+        },
 
 
     };
